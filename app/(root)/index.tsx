@@ -34,11 +34,11 @@ export default function Page() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-white dark:bg-black">
       <View className="flex-row justify-between items-center p-4">
         <View>
-          <Text className="text-gray-400 text-base">Bem-vindo,</Text>
-          <Text className="text-white text-2xl font-bold">{user?.name}</Text>
+          <Text className="text-base text-gray-600 dark:text-gray-400">Bem-vindo,</Text>
+          <Text className="text-black dark:text-white text-2xl font-bold">{user?.name}</Text>
         </View>
         <SignOutButton />
       </View>

@@ -1,4 +1,4 @@
-import { API_URL } from "@/constants/api";
+import { FIPE_API_URL } from "@/constants/api";
 import { Brand } from "@/models/Brand";
 import { useCallback, useState } from "react";
 
@@ -8,7 +8,7 @@ export const useBrands = () => {
 
   const fetchBrands = useCallback(async () => {
     try {
-      const response = await fetch(`${API_URL}/carros/marcas`);
+      const response = await fetch(`${FIPE_API_URL}/carros/marcas`);
       const data = await response.json();
       setBrands(data);
     } catch (error) {
