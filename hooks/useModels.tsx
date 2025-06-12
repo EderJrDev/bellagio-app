@@ -1,4 +1,4 @@
-import { API_URL } from "@/constants/api";
+import { FIPE_API_URL } from "@/constants/api";
 import { Model } from "@/models/Model";
 import { useCallback, useState } from "react";
 
@@ -16,7 +16,7 @@ export const useModels = (brandId: string | undefined) => {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_URL}/carros/marcas/${brandId}/modelos`);
+      const response = await fetch(`${FIPE_API_URL}/carros/marcas/${brandId}/modelos`);
       const data: ModelResponse = await response.json();
       setModels(data.modelos);
     } catch (error) {

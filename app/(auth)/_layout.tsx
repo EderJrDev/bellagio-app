@@ -1,9 +1,10 @@
 import PageLoader from "@/components/PageLoader";
 import { useAuth } from "@/contexts/authContext";
+import SafeScreen from "@components/SafeScreen";
 import { Redirect, Stack } from "expo-router";
 
 export default function AuthLayout() {
-  const { user, loading } = useAuth(); // Usando nosso contexto
+  const { user, loading } = useAuth();
 
   if (loading) return <PageLoader />;
 
@@ -11,6 +12,9 @@ export default function AuthLayout() {
     return <Redirect href="/" />;
   }
 
-  // Senão, mostra as telas de login/cadastro
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <SafeScreen applyBackground={false}>
+      <Stack screenOptions={{ headerShown: false }} />
+    </SafeScreen>
+  );
 }

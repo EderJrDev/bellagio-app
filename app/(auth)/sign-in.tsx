@@ -37,15 +37,11 @@ export default function Page() {
     },
   });
 
-  // Função chamada ao submeter o formulário
   const onSubmit = async (data: { user: string; password: string }) => {
     setIsLoading(true);
     try {
-      // 3. Chame a função signIn do contexto
       await signIn({ user: data.user, password: data.password });
-      router.push('/'); // Redireciona para a página inicial após o login
-      // A navegação para a Home será tratada automaticamente
-      // pela sua estrutura de rotas ao detectar a mudança no estado de autenticação.
+      router.push('/');
     } catch (error: any) {
       Alert.alert('Erro no Login', error.message || 'Não foi possível fazer login.');
     } finally {

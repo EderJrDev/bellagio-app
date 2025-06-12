@@ -1,50 +1,91 @@
+import { USER_API_URL } from '@constants/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as LocalAuthentication from 'expo-local-authentication';
+import { useRouter } from 'expo-router';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { Alert } from 'react-native';
 
-// Interface para os dados do usuário
 interface User {
   name: string;
   email: string;
 }
 
-// Interface para o valor do contexto de autenticação
 interface AuthContextData {
   user: User | null;
   loading: boolean;
+  biometricsEnabled: boolean;
   signIn(credentials: any): Promise<void>;
   logout(): Promise<void>;
+  promptBiometricLogin(): Promise<void>;
 }
 
-// Interface para as props do provedor de autenticação
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Cria o Contexto de Autenticação
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
-// Cria o Provedor de Autenticação
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [biometricsEnabled, setBiometricsEnabled] = useState<boolean>(false);
+  const router = useRouter();
 
-  // Carrega os dados do usuário do AsyncStorage ao iniciar o app
-  useEffect(() => {
-    async function loadStoragedData() {
-      const storagedUser = await AsyncStorage.getItem('@CarApp:user');
+  const attemptBiometricLogin = async (): Promise<boolean> => {
+    try {
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Faça login no Bellagio Cars',
+        fallbackLabel: 'Use sua senha',
+      });
+      return result.success;
+    } catch (error) {
+      console.error('Erro na autenticação biométrica', error);
+      return false;
+    }
+  };
 
+  const promptBiometricLogin = async () => {
+    const success = await attemptBiometricLogin();
+    if (success) {
+      const storagedUser = await AsyncStorage.getItem('@Bellagio:user');
       if (storagedUser) {
         setUser(JSON.parse(storagedUser));
       }
-      setLoading(false);
+      router.push('/');
+    }
+  };
+
+  useEffect(() => {
+    async function loadStoragedData() {
+      try {
+        const biometricsEnabled = await AsyncStorage.getItem('@Bellagio:biometrics_enabled') === 'true';
+
+        if (biometricsEnabled) {
+          const result = await LocalAuthentication.authenticateAsync({
+            promptMessage: 'Faça login no Bellagio Cars',
+            fallbackLabel: 'Use sua senha',
+            disableDeviceFallback: false,
+          });
+
+          if (result.success) {
+            const storagedUser = await AsyncStorage.getItem('@Bellagio:user');
+            if (storagedUser) {
+              setUser(JSON.parse(storagedUser));
+            }
+          }
+        }
+      } catch (e) {
+        console.error("Falha na tentativa de login automático", e);
+      } finally {
+        setLoading(false);
+      }
     }
     loadStoragedData();
   }, []);
 
-  // Função de SignIn
   const signIn = async (credentials: any) => {
     try {
-      const response = await fetch('https://test-api-y04b.onrender.com/signIn', {
+      const response = await fetch(`${USER_API_URL}/signIn`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials),
@@ -55,8 +96,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.ok) {
         setUser(data.user);
 
-        // Armazena os dados no AsyncStorage
-        await AsyncStorage.setItem('@CarApp:user', JSON.stringify(data.user));
+        await AsyncStorage.setItem('@Bellagio:user', JSON.stringify(data.user));
+
+        const hasHardware = await LocalAuthentication.hasHardwareAsync();
+        const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+
+        if (hasHardware && isEnrolled && !biometricsEnabled) {
+          Alert.alert(
+            'Login Rápido',
+            'Deseja habilitar o login com reconhecimento facial ou digital?',
+            [
+              { text: 'Não', style: 'cancel' },
+              {
+                text: 'Sim',
+                onPress: async () => {
+                  await AsyncStorage.setItem('@Bellagio:biometrics_enabled', 'true');
+                  setBiometricsEnabled(true);
+                  Alert.alert('Sucesso!', 'Login rápido habilitado.');
+                },
+              },
+            ]
+          );
+        }
 
       } else {
         throw new Error(data.message || 'Credenciais inválidas.');
@@ -67,12 +128,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = async () => {
-    await AsyncStorage.clear();
+    await AsyncStorage.removeItem('@Bellagio:user');
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, logout }}>
+    <AuthContext.Provider value={{ user, loading, signIn, logout, biometricsEnabled, promptBiometricLogin }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,4 +1,3 @@
-// app/(auth)/components/UserInput.tsx
 import { Feather } from '@expo/vector-icons';
 import React from 'react';
 import { Controller } from 'react-hook-form';

@@ -42,7 +42,7 @@ export default function ModelScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-white dark:bg-black">
       <View className="flex-row items-center p-4 border-b border-gray-800">
         <TouchableOpacity onPress={() => router.back()} className="p-2">
           <Feather name="arrow-left" size={24} color="#D4AF37" />
