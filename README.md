@@ -34,7 +34,7 @@
 Abaixo, uma demonstração animada que mostra o fluxo de navegação, as animações fluidas e os principais recursos do aplicativo em ação. **Clique na imagem para assistir ao vídeo.**
 
 <p align="center">
-  <a href="https://res.cloudinary.com/diupmc01d/video/upload/v1749704199/qdxmwp7slw7ndep2vmad.mp4?_s=public-apps" title="Clique para assistir ao vídeo completo">
+  <a href="https://res.cloudinary.com/diupmc01d/video/upload/v1749704199/qdxmwp7slw7ndep2vmad.mp4?_s=public-apps" target="_blank" title="Clique para assistir ao vídeo completo">
     <!-- DICA: Crie um GIF (ex: com ezgif.com) e adicione em assets/images/ com o nome bellagio-demo.gif -->
     <!-- Depois, substitua o link do src abaixo pelo link raw do seu GIF no GitHub -->
    <img src="https://raw.githubusercontent.com/EderJrDev/bellagio-app/refs/heads/main/assets/images/logo.png" alt="Logo Bellagio Cars" width="400"/>
